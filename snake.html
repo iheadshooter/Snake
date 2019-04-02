@@ -1,0 +1,145 @@
+<!Doctype html>
+<canvas id = "my_canvas" width = "600" height = "600"> </canvas>
+
+<script> 
+
+var canvas = document.getElementById("my_canvas");
+var ctx = canvas.getContext("2d");
+
+var height = canvas.height;
+var width = canvas.width;
+
+var block_size = 12;
+var block_fill_color = "rgba(1, 69, 84, 0.5)";
+var block_stroke_color = "rgba(254, 69, 74, 0.9)";
+
+var snake_size = 0;
+var snake_head_x = width / 2;
+var snake_head_y = height / 2;
+var snake_speed = 10;
+var velocity = {x : snake_speed, y : 0}; 
+
+var snake = []
+snake.push({x : snake_head_x, y : snake_head_y});
+snake_size += 1;
+var pop_allowed = true;
+
+var food = {x : 0, y : 0, status : false};
+food_block_size = 24;
+food_fill_color = "rgba(77, 67, 53, 0.4)";
+food_stroke_color = "rgba(65, 43, 22, 0.9)";
+
+document.addEventListener("keydown", keyDownHandler, false);
+
+function keyDownHandler(e) {
+    if (e.key == "Right" || e.key == "ArrowRight") {
+        if (velocity.x == 0) {
+            velocity.x = snake_speed;
+            velocity.y = 0;
+        }
+    }
+    if (e.key == "Left" || e.key == "ArrowLeft") {
+        if (velocity.x == 0) {
+            velocity.x = -snake_speed;
+            velocity.y = 0;
+        }
+    }
+    if (e.key == "Up" || e.key == "ArrowUp") {
+        if (velocity.y == 0) {
+            velocity.x = 0;
+            velocity.y = -snake_speed;
+        }
+    }
+    if (e.key == "Down" || e.key == "ArrowDown") {
+        if (velocity.y == "0") {
+            velocity.x = 0;
+            velocity.y = snake_speed;
+        }
+    }
+}
+
+interval = setInterval(draw, 300);
+
+function rectangle_collision(temp_snake, temp_food) {
+    if (temp_snake.x > temp_food.x + temp_food.w || temp_snake.x + temp_snake.w < temp_food.x) {
+        return false;
+    }
+    if (temp_snake.y > temp_food.y + temp_food.h || temp_snake.y + temp_snake.h < temp_food.y) {
+        return false;
+    }
+    return true;
+}
+
+function update() {
+    if (food.status == false) {
+        food.x = Math.random() * (height - food_block_size);
+        food.y = Math.random() * (width - food_block_size);
+        food.status = true;
+    }
+    snake_head_x += velocity.x;
+    snake_head_y += velocity.y;
+    snake.push({x : snake_head_x, y : snake_head_y});
+    if (pop_allowed) {
+        snake.shift();
+    }
+}
+
+function collision_detection() {
+    pop_allowed = true;
+
+    if (snake_head_x + block_size > width || snake_head_x < 0 || snake_head_y + block_size > height ||
+        snake_head_y < 0) {
+        alert("GAME OVER");
+        document.location.reload();
+        clearInterval(interval);
+    }
+
+    var temp_snake = {x : snake_head_x, y : snake_head_y, w : block_size, h : block_size};
+    var temp_food = {x : food.x, y : food.y, w : food_block_size, h : food_block_size};
+    if (rectangle_collision(temp_snake, temp_food)) {
+        pop_allowed = false;
+        food.status = false;
+        snake_size += 1;
+    }
+}
+
+function draw_wall() {
+    ctx.beginPath();
+    ctx.rect(0, 0, width, height);
+    ctx.strokeStyle = block_stroke_color;
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function draw_food() {
+    ctx.beginPath();
+    ctx.rect(food.x, food.y, food_block_size, food_block_size);
+    ctx.fillStyle = food_fill_color;
+    ctx.fill();
+    ctx.strokeStyle = food_stroke_color;
+    ctx.stroke;
+    ctx.closePath();
+}
+
+function draw_snake() {
+    for (var k = 0 ; k < snake_size ; k++) {
+        ctx.beginPath();
+        ctx.rect(snake[k].x, snake[k].y, block_size, block_size);
+        console.log(snake[k].x + " " + snake[k].y);
+        ctx.strokeStyle = block_stroke_color;
+        ctx.stroke();
+        ctx.closePath();
+    }
+    console.log(" ");
+}
+
+function draw() {
+    ctx.clearRect(0, 0, width, height);
+    update();
+    draw_wall();
+    draw_food();
+    draw_snake();
+    collision_detection();
+}
+
+</script>
