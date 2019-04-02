@@ -58,13 +58,13 @@ function keyDownHandler(e) {
     }
 }
 
-interval = setInterval(draw, 300);
+interval = setInterval(draw, 30);
 
-function rectangle_collision(temp_snake, temp_food) {
-    if (temp_snake.x > temp_food.x + temp_food.w || temp_snake.x + temp_snake.w < temp_food.x) {
+function rectangle_collision(a, b) {
+    if (a.x >= b.x + b.w || a.x + a.w <= b.x) {
         return false;
     }
-    if (temp_snake.y > temp_food.y + temp_food.h || temp_snake.y + temp_snake.h < temp_food.y) {
+    if (a.y >= b.y + b.h || a.y + a.h <= b.y) {
         return false;
     }
     return true;
@@ -96,11 +96,27 @@ function collision_detection() {
 
     var temp_snake = {x : snake_head_x, y : snake_head_y, w : block_size, h : block_size};
     var temp_food = {x : food.x, y : food.y, w : food_block_size, h : food_block_size};
+
     if (rectangle_collision(temp_snake, temp_food)) {
         pop_allowed = false;
         food.status = false;
         snake_size += 1;
+        return;
     }
+    
+    var temp_head = {x : snake_head_x, y : snake_head_y, w : block_size, h : block_size};
+    // if (pop_allowed == true) {
+    //     for (var k = 1 ; k < snake_size ; k++) {
+    //         var temp_part = {x : snake[k].x, y : snake[k].y, w : block_size, h : block_size};
+    //         if (rectangle_collision(temp_head, temp_part)) {
+    //             console.log(temp_head);
+    //             console.log(temp_part);
+    //             alert("GAME OVER");
+    //             document.location.reload();
+    //             clearInterval(interval);
+    //         }
+    //     }
+    // }
 }
 
 function draw_wall() {
@@ -125,12 +141,10 @@ function draw_snake() {
     for (var k = 0 ; k < snake_size ; k++) {
         ctx.beginPath();
         ctx.rect(snake[k].x, snake[k].y, block_size, block_size);
-        console.log(snake[k].x + " " + snake[k].y);
         ctx.strokeStyle = block_stroke_color;
         ctx.stroke();
         ctx.closePath();
     }
-    console.log(" ");
 }
 
 function draw() {
